@@ -1,0 +1,20 @@
+[
+  {
+    "ContainingType": "Program",
+    "Method": "\u003C\u003CMain\u003E$\u003Eg__getOrders|0_1",
+    "RelativePath": "api/order",
+    "HttpMethod": "GET",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[Order, OrdersTest, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  }
+]
