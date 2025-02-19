@@ -3,7 +3,7 @@
     <meta chaset="utf-8"/>
 </head>
 <body>
-    <div style="width:20px; height:20px; background:blue"></div>
+    <div style="width:20px; height:20px; background:green"></div>
 
     <script>
         "use strict";        
@@ -34,12 +34,15 @@
                 cell.align = 'center';
                 row.appendChild(cell);
             }
-            //добавл€ем две пустых €чейки под кнопки
+            //добавл€ем три пустых €чейки под кнопки просмотр, редактирование, удаление
             let cell1 = document.createElement('td');
             row.appendChild(cell1);
             let cell2 = document.createElement('td');
             row.appendChild(cell2);
-            return row;
+            let cell3 = document.createElement('td');
+            row.appendChild(cell3);
+
+            return row; //возвращаем строку с €чейками
         }
         function makeOrderRows(ar) { //функци€ принимает массив объектов (заказов) и возвращает строки с заказами
             let rows = new Array(); //массив дл€ строк
@@ -54,16 +57,22 @@
                 }
                 //добавл€ем две кнопки
                 let cell1 = document.createElement('td');
-                let btnEdit = document.createElement('button');
-                btnEdit.textContent = 'Edit';
-                cell1.appendChild(btnEdit);
+                let btnView = document.createElement('button');
+                btnView.textContent = 'View';
+                cell1.appendChild(btnView);
                 row.appendChild(cell1);
 
                 let cell2 = document.createElement('td');
+                let btnEdit = document.createElement('button');
+                btnEdit.textContent = 'Edit';
+                cell2.appendChild(btnEdit);
+                row.appendChild(cell2);
+
+                let cell3 = document.createElement('td');
                 let btnDelete = document.createElement('button');
                 btnDelete.textContent = 'Delete';
-                cell2.appendChild(btnDelete);
-                row.appendChild(cell2);
+                cell3.appendChild(btnDelete);
+                row.appendChild(cell3);
 
                 rows[i] = row;
             }
