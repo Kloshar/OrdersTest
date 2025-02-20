@@ -1,6 +1,17 @@
 <html>
 <head>
     <meta chaset="utf-8"/>
+    <style>
+        table {
+            font-family: 'Times New Roman'; 
+            border-spacing: 0;
+        }
+        td {
+            border: 1px solid;
+            padding: 5px;
+            text-align: center
+        }
+    </style>
 </head>
 <body>
     <div style="width:20px; height:20px; background:green"></div>
@@ -16,9 +27,6 @@
 
                 if (orders.length > 0) { //если в таблице есть заказы                    
                     table.appendChild(makeTableHeader(orders)); //создаЄм шапку таблицы дл€ вывода
-                    table.border = 1;
-                    table.cellSpacing = 0;
-                    table.cellPadding = 5;
                     for (let i = 0; i < makeOrderRows(orders).length; i++) { //добавл€ем строки с запис€ми (заказами)
                         table.append(makeOrderRows(orders)[i]);
                     }
@@ -31,7 +39,6 @@
             for (let key in ar[0]) { //перебираем ключи объекта первого элемента массива
                 let cell = document.createElement('td');
                 cell.textContent = key;
-                cell.align = 'center';
                 row.appendChild(cell);
             }
             //добавл€ем три пустых €чейки под кнопки просмотр, редактирование, удаление
@@ -52,13 +59,13 @@
                 for (let key in ar[i]) {
                     let cell = document.createElement('td'); //€чейка дл€ каждого пол€ аписи
                     cell.textContent = ar[i][key];
-                    cell.align = 'center';
                     row.appendChild(cell);
                 }
                 //добавл€ем две кнопки
                 let cell1 = document.createElement('td');
                 let btnView = document.createElement('button');
                 btnView.textContent = 'View';
+                btnView.addEventListener("click",  () => alert(this.innerHTML));
                 cell1.appendChild(btnView);
                 row.appendChild(cell1);
 
