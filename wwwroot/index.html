@@ -65,7 +65,12 @@
                 let cell1 = document.createElement('td');
                 let btnView = document.createElement('button');
                 btnView.textContent = 'View';
-                btnView.addEventListener("click",  () => alert(this.innerHTML));
+                btnView.addEventListener("click", handler);
+
+                function handler() {
+                    alert(this.rows);
+                }
+
                 cell1.appendChild(btnView);
                 row.appendChild(cell1);
 
