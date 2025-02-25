@@ -14,17 +14,26 @@
     </style>
 </head>
 <body>
-    <div style="width:20px; height:20px; background:green"></div>
-
+    <div style="background:green "><b>Заказы</b></div>
+    <button id="createOrderButton" style="height:30px">Создать заказ</button>
     <script>
         "use strict";
+        createOrderButton.addEventListener("click", createButtonHandler);
+
+        function createButtonHandler() {
+            console.log("!");
+            let table = document.createElement('table'); //создаём таблицу
+            let rowHead = document.createElement('tr'); //создаём троку
+            table.appendChild();
+
+
+        }
+
         async function getOrders() { //GET запрос на сервер
             const response = await fetch("/api/order", { method: "GET", headers: { "Accept": "application/json" } }); //получаем ответ
             if (response.ok === true) {
                 const orders = await response.json(); //ожидаем json, получаем Array
                 let table = document.createElement('table'); //создаём таблицу
-                table.style.content = 'center';
-
                 if (orders.length > 0) { //если в таблице есть заказы                    
                     table.appendChild(makeTableHeader(orders)); //создаём шапку таблицы для вывода
                     for (let i = 0; i < makeOrderRows(orders).length; i++) { //добавляем строки с записями (заказами)
@@ -94,10 +103,9 @@
                 row.appendChild(cell3);
 
                 function deleteButtonhandler() {
-                    let btn = this;
-                    let idValue = btn.parentNode.parentNode.childNodes[0].childNodes[0].data;
-                    //alert(idValue);
-                    deleteOrder(idValue, btn);
+                    let btn = this; //переменная с кнопкой
+                    let idValue = btn.parentNode.parentNode.childNodes[0].childNodes[0].data; //извлекаем значение первой ячейки в строке с кнопкой
+                    deleteOrder(idValue, btn); //удаление из бд и удаление строки таблицы
                 }
 
                 rows[i] = row;
