@@ -17,9 +17,9 @@
     <div style="width:20px; height:20px; background:green"></div>
 
     <script>
-        "use strict";        
+        "use strict";
         async function getOrders() { //GET запрос на сервер
-            const response = await fetch("/api/order", { method: "GET", headers: { "Accept": "application/json" } });
+            const response = await fetch("/api/order", { method: "GET", headers: { "Accept": "application/json" } }); //получаем ответ
             if (response.ok === true) {
                 const orders = await response.json(); //ожидаем json, получаем Array
                 let table = document.createElement('table'); //создаём таблицу
@@ -61,34 +61,56 @@
                     cell.textContent = ar[i][key];
                     row.appendChild(cell);
                 }
-                //добавляем две кнопки
+                //добавляем три кнопки
                 let cell1 = document.createElement('td');
                 let btnView = document.createElement('button');
-                btnView.textContent = 'View w';
-                btnView.addEventListener("click", handler);
-
-                function handler() {
-                    alert("hello man!!");
-                }
-
+                btnView.textContent = 'View';
+                btnView.addEventListener("click", viewButtonhandler);
                 cell1.appendChild(btnView);
                 row.appendChild(cell1);
+
+                function viewButtonhandler() {
+                    let idValue = this.parentNode.parentNode.childNodes[0].childNodes[0].data;
+                    alert(idValue);
+                }
 
                 let cell2 = document.createElement('td');
                 let btnEdit = document.createElement('button');
                 btnEdit.textContent = 'Edit';
+                btnEdit.addEventListener("click", editButtonhandler);
                 cell2.appendChild(btnEdit);
                 row.appendChild(cell2);
+
+                function editButtonhandler() {
+                    let idValue = this.parentNode.parentNode.childNodes[0].childNodes[0].data;
+                    alert(idValue);
+                }
 
                 let cell3 = document.createElement('td');
                 let btnDelete = document.createElement('button');
                 btnDelete.textContent = 'Delete';
+                btnDelete.addEventListener("click", deleteButtonhandler);
                 cell3.appendChild(btnDelete);
                 row.appendChild(cell3);
+
+                function deleteButtonhandler() {
+                    let btn = this;
+                    let idValue = btn.parentNode.parentNode.childNodes[0].childNodes[0].data;
+                    //alert(idValue);
+                    deleteOrder(idValue, btn);
+                }
 
                 rows[i] = row;
             }
             return rows;
+        }
+        async function deleteOrder(id, btn) { //DELETE запрос на сервер
+            const response = await fetch(`/api/deleteOrder/${id}`, { method: "DELETE", headers: { "Accept": "application/json" } }); //получаем ответ
+            //alert("Запрос отправлен на сервер. Статус: " + response.status);
+            if (response.ok === true) {
+                let row = btn.parentNode.parentNode; //находим строку таблицы
+                row.remove(); //удаляем
+            }
         }
         getOrders(); //отправляем GET запрос на сервер
     </script>

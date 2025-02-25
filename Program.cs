@@ -12,10 +12,7 @@ app.UseDefaultFiles(); //поддержка файлов index.html по-умолчанию
 app.UseStaticFiles(); //поддержка статических файлов в папке wwwroot
 
 app.MapGet("/api/order", getOrders); //обработка GET запроса
-
-//app.MapGet("/api/order", (ApContext db) => db.Order.ToList()); //обработка GET запроса
-
-//app.Run(async (context) => await context.Response.WriteAsync("Page not found")); //выполнится,если страница по-умолчанию не будет найдена
+app.MapDelete("/api/deleteOrder/{id:int}", deleteOrder); //обработка GET запроса
 
 app.Run();
 
@@ -32,7 +29,15 @@ List<Product> getProducts(HttpContext context, ApContext db)
     response.Headers.ContentType = "application/json; charset=utf-8";
     return db.Product.ToList();
 }
-
+async Task<IResult> deleteOrder(HttpRequest request, ApContext db)
+{
+    int? id = Convert.ToInt32(request.RouteValues["id"]);
+    Order? order = await db.Order.FirstOrDefaultAsync(o => o.Id == id);
+    if (order == null) return Results.NotFound(new { message = "Заказ не найден!" });
+    db.Order.Remove(order);
+    await db.SaveChangesAsync();
+    return Results.Json(order);
+}
 
 public class Order
 {
@@ -49,7 +54,6 @@ public class Product
     public int Amount { get; set; }
     public decimal Price { get; set; }
 }
-
 public class ApContext : DbContext
 {
     public DbSet<Order> Order { get; set; } = null!; //коллекция для таблицы заказы
