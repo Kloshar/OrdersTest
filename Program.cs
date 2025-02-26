@@ -3,15 +3,13 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 string conn = builder.Configuration.GetConnectionString("DefaultConnection")!;
 conn = conn.Replace("replacement_name", Environment.MachineName);
-
 builder.Services.AddDbContext<ApContext>(options => options.UseSqlServer(conn));
-
 var app = builder.Build();
-
 app.UseDefaultFiles(); //поддержка файлов index.html по-умолчанию
 app.UseStaticFiles(); //поддержка статических файлов в папке wwwroot
 
 app.MapGet("/api/order", getOrders); //обработка GET запроса
+app.MapGet("/api/productnames", getProductNames); //обработка GET запроса
 app.MapDelete("/api/deleteOrder/{id:int}", deleteOrder); //обработка GET запроса
 
 app.Run();
@@ -29,6 +27,29 @@ List<Product> getProducts(HttpContext context, ApContext db)
     response.Headers.ContentType = "application/json; charset=utf-8";
     return db.Product.ToList();
 }
+async Task<IResult> getProductNames(HttpContext context, ApContext db)
+{
+    List<Product> products = db.Product.ToList();
+    List<ProductName> names = new List<ProductName>();
+
+    foreach(Product p in products)
+    {
+        ProductName name = new ProductName();
+        name.Title = p.Title;
+        name.Price = p.Price;
+        names.Add(name);
+    }
+
+    var articleNames = names.Distinct(new ProductComparer()).ToList();
+
+    foreach(ProductName n in articleNames)
+    {
+        Console.WriteLine($"{n.Title}, {n.Price}");
+    }
+    Console.WriteLine(articleNames.Count);
+
+    return Results.Json(articleNames);
+}
 async Task<IResult> deleteOrder(HttpRequest request, ApContext db)
 {
     int? id = Convert.ToInt32(request.RouteValues["id"]);
@@ -38,7 +59,6 @@ async Task<IResult> deleteOrder(HttpRequest request, ApContext db)
     await db.SaveChangesAsync();
     return Results.Json(order);
 }
-
 public class Order
 {
     public int Id { get; set; }
@@ -54,10 +74,15 @@ public class Product
     public int Amount { get; set; }
     public decimal Price { get; set; }
 }
+public class ProductName
+{
+    public string Title { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+}
 public class ApContext : DbContext
 {
     public DbSet<Order> Order { get; set; } = null!; //коллекция для таблицы заказы
-    public DbSet<Product> Product { get; set; } = null!; //коллекция для таблицы заказы
+    public DbSet<Product> Product { get; set; } = null!; //коллекция для таблицы товары
     public ApContext(DbContextOptions<ApContext> options) : base(options)
     {
         Database.EnsureCreated();
@@ -65,5 +90,21 @@ public class ApContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 
+    }
+}
+public class ProductComparer : IEqualityComparer<ProductName>
+{
+    public bool Equals(ProductName x, ProductName y)
+    {
+        if(Object.ReferenceEquals(x, y)) return true; //проверка, что объекты ссылаются на одни данные
+        if(Object.ReferenceEquals(x,null) ||  Object.ReferenceEquals(y,null)) return false; //проверка, что какой-либо объект равен нулю
+        return x.Title == y.Title && x.Price == y.Price; //проверка на равенство свойств объектов
+    }
+    public int GetHashCode(ProductName product) 
+    { 
+        if(Object.ReferenceEquals(product, null)) return 0; //проверка, что объект на null
+        int hashProductName = product.Title == null ? 0: product.Title.GetHashCode(); //хеш для названия
+        int hashProductPrice = product.Price.GetHashCode(); //хеш для цены
+        return hashProductName ^ hashProductPrice; //хеш для всего продукта
     }
 }
