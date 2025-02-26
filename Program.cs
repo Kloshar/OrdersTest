@@ -39,14 +39,13 @@ async Task<IResult> getProductNames(HttpContext context, ApContext db)
         name.Price = p.Price;
         names.Add(name);
     }
-
     var articleNames = names.Distinct(new ProductComparer()).ToList();
 
     foreach(ProductName n in articleNames)
     {
         Console.WriteLine($"{n.Title}, {n.Price}");
     }
-    Console.WriteLine(articleNames.Count);
+    Console.WriteLine(articleNames);
 
     return Results.Json(articleNames);
 }
