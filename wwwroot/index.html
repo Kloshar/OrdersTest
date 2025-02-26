@@ -15,32 +15,105 @@
 </head>
 <body>
     <div style="background:green "><b>Заказы</b></div>
-    <button id="createOrderButton" style="height:30px">Создать заказ</button>
+    <!--<button id="createOrderButton" style="height:30px">Создать заказ</button>-->
+    <p><b>Новый заказ</b></p>
+    <form name="createForm" method="post">
+        <div><label for="Number" style="width:200px; float:left;">Номер заказа</label> <input name="Number" value="D-001"></div>
+        <div><label for="Name" style="width:200px; float:left;">Имя</label> <input name="Name" value="Вася"></div>
+
+        <div>
+            <label for="Article" style="width:200px; float:left;">Товар</label>
+            <select name="Article">
+                <option disabled selected>Выберите товар</option>
+                <option value="Удлинитель">Удлинитель</option>
+                <option value="Розетка">Розетка</option>
+            </select>
+            <input name="cost" value="">
+            <input name="ammount" value="">
+        </div>
+        <p><input name="sendButton" type="submit" value="Отправить"/></p>
+
+    </form>
     <script>
         "use strict";
-        createOrderButton.addEventListener("click", createButtonHandler);
+        getProductNames();
 
-        function createButtonHandler() {
-            console.log("!");
-            let table = document.createElement('table'); //создаём таблицу
-            let rowHead = document.createElement('tr'); //создаём троку
-            table.appendChild();
+        const article = document.createForm.Article;
+        article.addEventListener("change", fillData);
 
+        //функция для получения данных о товарах из таблицы Product
+        async function getProductNames() {
+            const response = await fetch("/api/productnames", { method: "GET", headers: { "Accept": "application/json" } });
+            //alert(response.status);
+            if (response.ok === true) {
+                const products = await response.json();
+                console.log(products[0]);
 
+            }
         }
+        function fillData() {
+            const cost = document.createForm.cost;
+            cost.value = 69.09;
+            const ammount = document.createForm.ammount;
+            ammount.value = 2;
+            newLine();
+        }
+        function newLine() {
+            const form = document.createForm;
+            const div = document.createElement('div'); //создаём строку
+            const label = document.createElement('label'); //создаём заголовок
+            label.textContent = "Товар";
+            label.style.width = '200px';
+            label.style.display = 'inline-block';
+            const select = document.createElement('select'); //создаём комбобокс
+            const option1 = document.createElement('option'); //создаём выбор
+            const option2 = document.createElement('option'); //создаём выбор
+            const option3 = document.createElement('option'); //создаём выбор
+            const cost = document.createElement('input'); //создаём поле
+            const ammount = document.createElement('input'); //создаём поле
+            const sendBtn = document.createForm.sendButton; //кнопка отправки
+            select.append(option1, option2, option3); //добавляем варианты выбора в select
+            div.append(label, select, cost, ammount); //добавляем элементы строки в блок
+            sendBtn.parentNode.before(div); //вставляем перед кнопкой отправки
+        }
+        //createOrderButton.addEventListener("click", createButtonHandler); //добавляем обработчик кнопки createOrderButton
+        function createButtonHandler() {
+            if (document.getElementById('orderAttributes') == null) {
 
+                let table = document.createElement('table'); //создаём таблицу
+                table.id = "orderAttributes";
+
+                let row1 = document.createElement('tr'); //создаём строку
+                let cellNumberTitle = document.createElement('td'); //создаём ячейку
+                cellNumberTitle.textContent = "Number";
+                let cellNumberValue = document.createElement('td'); //создаём ячейку
+                cellNumberValue.textContent = "";
+                cellNumberValue.style.width = '50px';
+                row1.append(cellNumberTitle, cellNumberValue);
+
+                let row2 = document.createElement('tr'); //создаём строку
+                let cellCustomerTitle = document.createElement('td'); //создаём ячейку
+                cellCustomerTitle.textContent = "Customer";
+                let cellCustomerValue = document.createElement('td'); //создаём ячейку
+                cellCustomerValue.textContent = "";
+                row2.append(cellCustomerTitle, cellCustomerValue);
+
+                table.append(row1, row2);
+                document.body.append(table);
+            }
+        }
         async function getOrders() { //GET запрос на сервер
             const response = await fetch("/api/order", { method: "GET", headers: { "Accept": "application/json" } }); //получаем ответ
             if (response.ok === true) {
                 const orders = await response.json(); //ожидаем json, получаем Array
                 let table = document.createElement('table'); //создаём таблицу
-                if (orders.length > 0) { //если в таблице есть заказы                    
+                if (orders.length > 0) { //если в таблице есть заказы
                     table.appendChild(makeTableHeader(orders)); //создаём шапку таблицы для вывода
                     for (let i = 0; i < makeOrderRows(orders).length; i++) { //добавляем строки с записями (заказами)
                         table.append(makeOrderRows(orders)[i]);
                     }
                     document.body.append(table);
-                }                
+                }
             }
         }
         function makeTableHeader(ar) { //функция принимает массив объектов (заказов) и возвращает шапку таблицы с заголовками
