@@ -25,8 +25,8 @@
             <label for="Article" style="width:200px; float:left;">Товар</label>
             <select name="Article">
                 <option disabled selected>Выберите товар</option>
-                <option value="Удлинитель">Удлинитель</option>
-                <option value="Розетка">Розетка</option>
+                <!--<option value="Удлинитель">Удлинитель</option>
+                <option value="Розетка">Розетка</option>-->
             </select>
             <input name="cost" value="">
             <input name="ammount" value="">
@@ -36,19 +36,32 @@
     </form>
     <script>
         "use strict";
-        getProductNames();
+        let products = getProductNames().then(
+            result => alert(result),
+            error => alert(error)
+        ); //наименования товаром с ценой
 
-        const article = document.createForm.Article;
-        article.addEventListener("change", fillData);
+        console.log(products);
 
-        //функция для получения данных о товарах из таблицы Product
-        async function getProductNames() {
-            const response = await fetch("/api/productnames", { method: "GET", headers: { "Accept": "application/json" } });
-            //alert(response.status);
+        const article = document.createForm.Article; //поле выбора товара
+
+        //article.addEventListener("change", fillData);
+
+        async function getProductNames() { //функция для получения данных о товарах из таблицы Product
+            const response = await fetch("/api/productnames", { method: "GET", headers: { "Accept": "application/json" } }); //получаем промис
             if (response.ok === true) {
-                const products = await response.json();
-                console.log(products);
-
+                const products = await response.json(); //получаем данные в json
+                return products;
+            }
+            else { return null; }            
+        }
+        function addOptions(sel, names) {
+            const products = names;
+            for (let i = 0; products.length; i++) {
+                const opt = document.createElement('option'); //создаём строку 
+                opt.value = products[i].title;
+                opt.text = products[i].title;
+                article.append(opt);
             }
         }
         function fillData() {

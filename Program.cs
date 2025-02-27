@@ -27,7 +27,7 @@ List<Product> getProducts(HttpContext context, ApContext db)
     response.Headers.ContentType = "application/json; charset=utf-8";
     return db.Product.ToList();
 }
-async Task<IResult> getProductNames(HttpContext context, ApContext db)
+IResult getProductNames(HttpContext context, ApContext db)
 {
     List<Product> products = db.Product.ToList();
     List<ProductName> names = new List<ProductName>();
