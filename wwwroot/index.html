@@ -20,12 +20,10 @@
         <div><label for="Number" style="width:200px; float:left;">Номер заказа</label> <input name="Number" value="ORD-0001"></div>
         <div><label for="Name" style="width:200px; float:left;">Имя</label> <input name="Name" value="Вася"></div>
         <p><input name="sendButton" type="submit" value="Отправить"/></p>
-
     </form>
     <script>
         "use strict";
-        let products = getProductNames(); //наименования товаром с ценой (грёбанный промис)
-        newLine(); //строка с выбором товара
+        let products = getProductNames(); //наименования товаром с ценой (грёбанный промис)        
         async function getProductNames() { 
             const response = await fetch("/api/productnames", { method: "GET", headers: { "Accept": "application/json" } }); //получаем промис
             if (response.ok === true) {
@@ -175,6 +173,7 @@
                 row.remove(); //удаляем
             }
         } //удаление заказа
+        newLine(); //строка с выбором товара
         getOrders(); //отправляем GET запрос на сервер
     </script>
 </body>
