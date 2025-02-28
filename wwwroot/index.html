@@ -15,62 +15,52 @@
 </head>
 <body>
     <div style="background:green "><b>Заказы</b></div>
-    <!--<button id="createOrderButton" style="height:30px">Создать заказ</button>-->
     <p><b>Новый заказ</b></p>
     <form name="createForm" method="post">
-        <div><label for="Number" style="width:200px; float:left;">Номер заказа</label> <input name="Number" value="D-001"></div>
+        <div><label for="Number" style="width:200px; float:left;">Номер заказа</label> <input name="Number" value="ORD-0001"></div>
         <div><label for="Name" style="width:200px; float:left;">Имя</label> <input name="Name" value="Вася"></div>
-
-        <div>
-            <label for="Article" style="width:200px; float:left;">Товар</label>
-            <select name="Article">
-                <option disabled selected>Выберите товар</option>
-                <!--<option value="Удлинитель">Удлинитель</option>
-                <option value="Розетка">Розетка</option>-->
-            </select>
-            <input name="cost" value="">
-            <input name="ammount" value="">
-        </div>
         <p><input name="sendButton" type="submit" value="Отправить"/></p>
 
     </form>
     <script>
         "use strict";
-        let products = getProductNames().then(
-            result => alert(result),
-            error => alert(error)
-        ); //наименования товаром с ценой
-
-        console.log(products);
-
-        const article = document.createForm.Article; //поле выбора товара
-
-        //article.addEventListener("change", fillData);
-
-        async function getProductNames() { //функция для получения данных о товарах из таблицы Product
+        let products = getProductNames(); //наименования товаром с ценой (грёбанный промис)
+        newLine(); //строка с выбором товара
+        async function getProductNames() { 
             const response = await fetch("/api/productnames", { method: "GET", headers: { "Accept": "application/json" } }); //получаем промис
             if (response.ok === true) {
                 const products = await response.json(); //получаем данные в json
                 return products;
             }
-            else { return null; }            
-        }
-        function addOptions(sel, names) {
-            const products = names;
-            for (let i = 0; products.length; i++) {
-                const opt = document.createElement('option'); //создаём строку 
-                opt.value = products[i].title;
-                opt.text = products[i].title;
-                article.append(opt);
-            }
-        }
+            else { return null; }           
+        } //функция для получения данных о товарах из таблицы Product
+        function addOptions(sel, products) { //аргументы: select бокс и промис с названиями товаров
+            products.then(
+                result => {
+                    for (let i = 0; result.length; i++) {
+                        const opt = document.createElement('option'); //создаём строку 
+                        opt.value = result[i].title;
+                        opt.text = result[i].title;
+                        sel.append(opt);
+                    }
+                });
+        } //добавление товаров в комбобокс
         function fillData() {
-            const cost = document.createForm.cost;
-            cost.value = 69.09;
-            const ammount = document.createForm.ammount;
-            ammount.value = 2;
-            newLine();
-        }
+            const sel = this;            
+            //console.log(sel);
+            products.then(
+                result => {
+                    for (let article of result) {
+                        if (article.title == sel.value) {
+                            sel.nextElementSibling.value = 1;
+                            sel.nextElementSibling.nextElementSibling.value = article.price;
+                        }                        
+                    }
+                    if (sel.parentNode.nextElementSibling.constructor.name == "HTMLParagraphElement") {
+                        newLine(); //если нет следующей строки, то создаём
+                    }
+                });
+        } //заполнение соседних с товаром ячеек
         function newLine() {
             const form = document.createForm;
             const div = document.createElement('div'); //создаём строку
@@ -79,42 +69,21 @@
             label.style.width = '200px';
             label.style.display = 'inline-block';
             const select = document.createElement('select'); //создаём комбобокс
+            select.addEventListener("change", fillData);
             const option1 = document.createElement('option'); //создаём выбор
-            const option2 = document.createElement('option'); //создаём выбор
-            const option3 = document.createElement('option'); //создаём выбор
+            option1.text = "Выберите товар";
+            option1.disabled = true;
+            option1.selected = true;
+            select.append(option1); //добавляем варианты выбора в select
+            addOptions(select, products);
             const cost = document.createElement('input'); //создаём поле
             const ammount = document.createElement('input'); //создаём поле
-            const sendBtn = document.createForm.sendButton; //кнопка отправки
-            select.append(option1, option2, option3); //добавляем варианты выбора в select
+
             div.append(label, select, cost, ammount); //добавляем элементы строки в блок
+            console.log(div);
+            const sendBtn = document.createForm.sendButton; //кнопка отправки
             sendBtn.parentNode.before(div); //вставляем перед кнопкой отправки
-        }
-        //createOrderButton.addEventListener("click", createButtonHandler); //добавляем обработчик кнопки createOrderButton
-        function createButtonHandler() {
-            if (document.getElementById('orderAttributes') == null) {
-
-                let table = document.createElement('table'); //создаём таблицу
-                table.id = "orderAttributes";
-
-                let row1 = document.createElement('tr'); //создаём строку
-                let cellNumberTitle = document.createElement('td'); //создаём ячейку
-                cellNumberTitle.textContent = "Number";
-                let cellNumberValue = document.createElement('td'); //создаём ячейку
-                cellNumberValue.textContent = "";
-                cellNumberValue.style.width = '50px';
-                row1.append(cellNumberTitle, cellNumberValue);
-
-                let row2 = document.createElement('tr'); //создаём строку
-                let cellCustomerTitle = document.createElement('td'); //создаём ячейку
-                cellCustomerTitle.textContent = "Customer";
-                let cellCustomerValue = document.createElement('td'); //создаём ячейку
-                cellCustomerValue.textContent = "";
-                row2.append(cellCustomerTitle, cellCustomerValue);
-
-                table.append(row1, row2);
-                document.body.append(table);
-            }
-        }
+        } //создание новой строки для выбора товара
         async function getOrders() { //GET запрос на сервер
             const response = await fetch("/api/order", { method: "GET", headers: { "Accept": "application/json" } }); //получаем ответ
             if (response.ok === true) {
@@ -128,8 +97,8 @@
                     document.body.append(table);
                 }
             }
-        }
-        function makeTableHeader(ar) { //функция принимает массив объектов (заказов) и возвращает шапку таблицы с заголовками
+        } //получаем заказы с сервера
+        function makeTableHeader(ar) { 
             let row = document.createElement('tr');
             for (let key in ar[0]) { //перебираем ключи объекта первого элемента массива
                 let cell = document.createElement('td');
@@ -145,8 +114,8 @@
             row.appendChild(cell3);
 
             return row; //возвращаем строку с ячейками
-        }
-        function makeOrderRows(ar) { //функция принимает массив объектов (заказов) и возвращает строки с заказами
+        } //функция принимает массив объектов (заказов) и возвращает шапку таблицы с заголовками
+        function makeOrderRows(ar) { 
             let rows = new Array(); //массив для строк
 
             for (let i = 0; i < ar.length; i++) {
@@ -197,7 +166,7 @@
                 rows[i] = row;
             }
             return rows;
-        }
+        } //функция принимает массив объектов (заказов) и возвращает строки с заказами
         async function deleteOrder(id, btn) { //DELETE запрос на сервер
             const response = await fetch(`/api/deleteOrder/${id}`, { method: "DELETE", headers: { "Accept": "application/json" } }); //получаем ответ
             //alert("Запрос отправлен на сервер. Статус: " + response.status);
@@ -205,7 +174,7 @@
                 let row = btn.parentNode.parentNode; //находим строку таблицы
                 row.remove(); //удаляем
             }
-        }
+        } //удаление заказа
         getOrders(); //отправляем GET запрос на сервер
     </script>
 </body>
