@@ -25,47 +25,39 @@
         "use strict";
         
         const sendBtn = document.getElementsByName("sendButton")[0]; //кнопка отправки (используетс€ в функци€х: newLine)
-        sendBtn.addEventListener('click', sendOrderData);
+        sendBtn.addEventListener('click', makeUpOrderString); //присоедин€ем обработчик к кнопке создани€ заказа
 
-        function sendOrderData() {
-
+        function makeUpOrderString() {
             let orderProducts = []; //массив дл€ хранени€ товаров из заказа
-
-            const number = document.getElementsByName("Number")[0];
-            const name = document.getElementsByName("Name")[0];
-
+            const number = document.getElementsByName("Number")[0]; //получаем номер заказа
+            const name = document.getElementsByName("Name")[0]; //и им€ заказчика
             //далее перебор полей с выбраными товарами
             let mainDiv = document.getElementsByName("createForm")[0]; //получаем основной div
-
-            for (let elem of mainDiv.children) { //перебираем строки с товарами
+            for (let elem of mainDiv.children) { 
                 if (elem.constructor.name == "HTMLDivElement" && elem.getAttribute("name") == null) {
                     let name = elem.children.selBox.selectedOptions[0].value;
                     
                     if (name != "¬ыберите товар"){ //отсекаем последнюю строку (пустую)                        
                         let product = { title: elem.children.selBox.selectedOptions[0].value, amount: elem.children.costInput.value, price: elem.children.amountInput.value }; //добавл€ем значени€ с объект     
-                        //console.log(orderProducts.length);
-                        //console.log(product);
                         orderProducts[orderProducts.length] = product; //добавл€ем в массив
-                        //console.log(orderProducts);
                     }                    
                 }                
-            }
-            if (orderProducts.length > 0) { //если есть товары
-                let order = {
-                    number: number.value,
-                    name: name.value,
-                    products: orderProducts
-                }
+            }//перебираем строки с товарами
+            if (orderProducts.length > 0) { 
+                let order = { number: number.value, name: name.value, products: orderProducts };
                 //console.log(JSON.stringify(order));
-
-                const response = fetch("/api/order", { method: "POST", headers: { "Accept": "application/json" }, body: JSON.stringify(order) }); //отправл€ем на сервер запрос POST
-                if (response.ok === true) {
-                    alert(response);
-                    //const products = await response.json(); //получаем данные в json
-                    //return products;
-                }
+                sendOrderData(JSON.stringify(order));                
+            }//если есть товары
+        }
+        async function sendOrderData(orderString){
+            const response = await fetch("/api/order", { method: "POST", headers: { "Accept": "application/json" }, body: orderString }); //отправл€ем на сервер запрос POST (заказ с товарами)
+            if (response.ok === true) {
+                alert(response.status);
+                //const products = await response.json(); //получаем данные в json
+                //return products;
             }
         }
+
         let products = getProductNames(); //наименовани€ товаром с ценой (грЄбанный промис)
         async function getProductNames() { 
             const response = await fetch("/api/productnames", { method: "GET", headers: { "Accept": "application/json" } }); //получаем промис
@@ -220,10 +212,11 @@
                 let row = btn.parentNode.parentNode; //находим строку таблицы
                 row.remove(); //удал€ем
             }
-        } //удаление заказа
+        } //удаление заказа       
 
         newLine(); //строка с выбором товара
         getOrders(); //отправл€ем GET запрос на сервер
+
     </script>
 </body>
 </html>

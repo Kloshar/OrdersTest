@@ -11,10 +11,11 @@ app.UseStaticFiles(); //поддержка статических файлов в папке wwwroot
 app.MapGet("/api/order", getOrders); //обработка GET запроса
 app.MapGet("/api/productnames", getProductNames); //обработка GET запроса
 app.MapDelete("/api/deleteOrder/{id:int}", deleteOrder); //обработка GET запроса
+app.MapPost("/api/order", newOrder); //обработка POS запроса
 
 app.Run();
 
- List<Order> getOrders(HttpContext context, ApContext db)
+List<Order> getOrders(HttpContext context, ApContext db)
 {
     HttpResponse response = context.Response; //сокращаем запись ответа
     response.Headers.ContentType = "application/json; charset=utf-8";
@@ -40,13 +41,6 @@ IResult getProductNames(HttpContext context, ApContext db)
         names.Add(name);
     }
     var articleNames = names.Distinct(new ProductComparer()).ToList();
-
-    foreach(ProductName n in articleNames)
-    {
-        Console.WriteLine($"{n.Title}, {n.Price}");
-    }
-    Console.WriteLine(articleNames);
-
     return Results.Json(articleNames);
 }
 async Task<IResult> deleteOrder(HttpRequest request, ApContext db)
@@ -57,6 +51,15 @@ async Task<IResult> deleteOrder(HttpRequest request, ApContext db)
     db.Order.Remove(order);
     await db.SaveChangesAsync();
     return Results.Json(order);
+}
+async Task<IResult> newOrder(HttpRequest request, ApContext db)
+{
+    Console.WriteLine("!");
+
+    //Order? order = await db.Order.AddAsync(ord);
+
+
+    return Results.Empty;
 }
 public class Order
 {
